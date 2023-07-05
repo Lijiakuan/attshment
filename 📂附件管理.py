@@ -287,7 +287,7 @@ if mode == "新增记录":
         page_count = st.number_input("文件总页数", min_value=1, value=1, step=1)
         creator = st.text_input("文件上报人")
         contact = st.text_input("上报人联系方式")
-        hgroup = st.selectbox("类型",["文件类型", "文本文档", "视频", "照片", "其它"])
+        hgroup = st.selectbox("类型",[ "文本文档", "视频", "照片", "其它"])
         file_reciper = st.text_input("文件接收人")
         file_saver = st.text_input("文件保管人")
         entry_time = st.date_input("审批完成时间")
