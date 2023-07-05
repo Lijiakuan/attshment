@@ -36,12 +36,12 @@ import plotly.express as px
 #整体配置
 
 st.set_page_config(
-    page_title="五中心医工科文件信息系统",
+    page_title="文件信息系统",
     page_icon='🌐',
     layout="wide",
     menu_items={
     'Get Help': 'https://github.com/',
-    'About': '关于本系统: **由李家宽制作**'
+    'About': '关于本系统: **由ljk制作**'
 }
 )
 UPLOAD_FOLDER = "uploads"
@@ -269,7 +269,7 @@ def get_image_download_link(img, filename):
 
 st.title("文件信息系统系统")
 #侧边栏
-st.sidebar.header("医工科文件信息系统")
+st.sidebar.header("文件信息系统")
 mode = st.sidebar.selectbox("附件管理", ["新增记录", "查看记录", "检索记录","图表统计展示"])
 st.image("./banner1.png",use_column_width='always')
 # 上传文件
@@ -287,7 +287,7 @@ if mode == "新增记录":
         page_count = st.number_input("文件总页数", min_value=1, value=1, step=1)
         creator = st.text_input("文件上报人")
         contact = st.text_input("上报人联系方式")
-        hgroup = st.selectbox("所属组别",["维修组", "计量组", "库房组", "管理组", "采购组", "其它"])
+        hgroup = st.selectbox("类型",["文件类型", "文本文档", "视频", "照片", "其它"])
         file_reciper = st.text_input("文件接收人")
         file_saver = st.text_input("文件保管人")
         entry_time = st.date_input("审批完成时间")
@@ -434,7 +434,7 @@ if mode == "查看记录":
                         "文件页数", min_value=1, value=row_selected[2], step=1)
                     creator = my_form1.text_input("文件上报人", value=row_selected[3])
                     contact = my_form1.text_input("上报人联系方式", value=row_selected[4])
-                    hgroup = my_form1.text_input("所属组别", value=row_selected[5])
+                    hgroup = my_form1.text_input("文本类型", value=row_selected[5])
                     file_reciper = my_form1.text_input("文件接收人", value=row_selected[6])
                     file_saver = my_form1.text_input("文件保管人", value=row_selected[7])
                     entry_time2 = my_form1.text_input("审批完成时间",value=row_selected[8])
@@ -627,7 +627,7 @@ if mode == "检索记录":
                     page_count = my_form1.number_input("文件页数", min_value=1, value=row_selected[2], step=1)
                     creator = my_form1.text_input("文件上报人", value=row_selected[3])
                     contact = my_form1.text_input("上报人联系方式", value=row_selected[4])
-                    hgroup = my_form1.text_input("所属组别", value=row_selected[5])
+                    hgroup = my_form1.text_input("文本类型", value=row_selected[5])
                     file_reciper = my_form1.text_input("文件接收人", value=row_selected[6])
                     file_saver = my_form1.text_input("文件保管人", value=row_selected[7])
                     # entry_time = my_form1.date_input(value=row_selected[8])
