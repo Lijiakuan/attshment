@@ -178,7 +178,8 @@ def display_file(file_path):
             st.write(text)
         except:
             st.warning("预览的PDF文档不能为扫描件！！")
-        
+    elif file_type in ["mp4","MP4","rmvb","RMVB"]:
+        st.video(file_path)       
 
     elif file_type in ["txt", "TXT","csv","CSV"]:
         with open(file_path, "rb") as f:
@@ -227,11 +228,12 @@ st.image("./banner1.png",use_column_width='always')
 ############################################# 第一页 ############################################
 if mode == "新增记录":
     st.header("🏢新增记录✍")
+    # create_connection1()
     records = get_all_records()
     # df = pd.DataFrame(records,columns=["id", "总医院序号","产品名称","规格型号","生产厂家","产品价格", "注册证号",  "注册证名称", "产品类型","附件名", "附件存放地址", "备注", "记录创建时间"])
     df = pd.DataFrame(records,columns=["id", "mhostnum", "product_name", "spec_type", "factory", "price", "regist_number", "regist_name", "product_type", "file_name", "file_path", "remark1", "record_time"])
     # df = df.fillna('None')
-    if len(df)>1:
+    if len(df)>=1:
         maxid = df.iat[-1,0]
     else:
         maxid = 0
@@ -339,7 +341,8 @@ if mode == "查看记录":
 ######################################### 第三页 ##########################################
 # 显示记录
 if mode == "修改记录":  
-    st.header("修改记录")          
+    st.header("修改记录")
+    # create_table1()
     records = get_all_records()
     # df = pd.DataFrame(records,columns=["id", "总医院序号","产品名称","规格型号","生产厂家","产品价格", "注册证号",  "注册证名称", "产品类型","附件名", "附件存放地址", "备注", "记录创建时间"])
     df = pd.DataFrame(records,columns=["id", "mhostnum", "product_name", "spec_type", "factory", "price", "regist_number", "regist_name", "product_type", "file_name", "file_path", "remark1", "record_time"])
@@ -347,8 +350,10 @@ if mode == "修改记录":
                 "price":"产品价格", "regist_number":"注册证号", "regist_name":"注册证名称", "product_type":"产品类型", 
                 "file_name":"附件名", "file_path":"附件存放地址", "remark1":"备注", "record_time":"记录创建时间"}
     # df = df.fillna('None')
-    df = df.rename(columns=rennames)
+    # df = df.rename(columns=rennames)
     index = len(df)
+    if st.checkbox("查看对照列名称"):
+        st.write(rennames)
     # Initiate the streamlit-aggrid widget
     gb = GridOptionsBuilder.from_dataframe(df)
     gb.configure_side_bar()
@@ -366,24 +371,29 @@ if mode == "修改记录":
         if st.button('-----------新增记录-----------'):
             conn = create_connection1()
             df_new['data'].loc[index,:] = 'None'
-            # new_cloumns = ["mhostnum", "product_name", "spec_type", "factory", "price", "regist_number", "regist_name", "product_type", "file_name", "file_path", "remark1", "record_time"]
-            # df_new = df_new.reindex(columns=new_cloumns)
-            df_new['data'].to_sql(name='regmgr', con=conn, if_exists='replace', index=False,chunksize=1000)
+            # new_cloumns = ["id","mhostnum", "product_name", "spec_type", "factory", "price", "regist_number", "regist_name", "product_type", "file_name", "file_path", "remark1", "record_time"]
+            # df_new = df_new(columns=new_cloumns)
+            df_new['data'].to_sql(name='regmgr', con=conn, if_exists='replace', index=False, chunksize=1000)
+            conn.commit()
+            conn.close()
             st.experimental_rerun()
             # Save the dataframe to disk if the widget has been modified
         if df.equals(df_new['data']) is False:
             conn = create_connection1()
-            # new_cloumns = ["mhostnum", "product_name", "spec_type", "factory", "price", "regist_number", "regist_name", "product_type", "file_name", "file_path", "remark1", "record_time"]
-            # df_new = df_new.reindex(columns=new_cloumns)
-            df_new['data'].to_sql(name='regmgr', con=conn, if_exists='replace', index=False,chunksize=1000)
+            # new_cloumns = ["id","mhostnum", "product_name", "spec_type", "factory", "price", "regist_number", "regist_name", "product_type", "file_name", "file_path", "remark1", "record_time"]
+            # df_new = df_new(columns=new_cloumns)
+            df_new['data'].to_sql(name='regmgr', con=conn, if_exists='replace', index=False, chunksize=1000)
+            conn.commit()
+            conn.close()
             st.experimental_rerun()  
         if st.button('-----------删除记录-----------'):
             if len(df_new['selected_rows']) > 0:
                 # conn = create_connection1()
                 exclude = pd.DataFrame(df_new['selected_rows'])
-                [ delete_record(i) for i in exclude['id'] ]
+                for i in exclude["id"]:
+                    delete_record(i)
                 st.success("删除成功")
-                st.balloons
+                # st.balloons()
                 # pd.merge(df_new['data'], exclude, how='outer',
                 # indicator=True).query('_merge == "left_only"').drop('_merge', axis=1).to_sql(name='mytable', con=conn, if_exists='replace', index=False)
                 st.experimental_rerun()
@@ -410,21 +420,22 @@ if mode == "修改记录":
     if file_path:
         display_file(str(file_path))                
     with cl2:
-        if len(df_new['selected_rows']) == 1:
-            selects = pd.DataFrame(df_new['selected_rows'])
-            id = int(selects['id'][0])
-            filpth = get_record_by_id(id)[-3]
-            if filpth:
-                filpth = r'{}'.format(filpth)
-                filna = filpth.split('\\')[1]
-                down_btn = st.download_button(
-                        label="-----------下载附件-----------",
-                        data=open(filpth, "rb"),
-                        file_name=filna
-                        )
-        elif len(df_new['selected_rows']) > 1 and st.button(label="-----------下载附件-----------"):
-            st.warning('**请选择一条记录进行下载！！**')
-            
+        if df_new['selected_rows'] is not None:
+            if len(df_new['selected_rows']) == 1:
+                selects = pd.DataFrame(df_new['selected_rows'])
+                id = int(selects['id'][0])
+                filpth = get_record_by_id(id)[-3]
+                if filpth:
+                    filpth = r'{}'.format(filpth)
+                    filna = filpth.split('\\')[1]
+                    down_btn = st.download_button(
+                            label="-----------下载附件-----------",
+                            data=open(filpth, "rb"),
+                            file_name=filna
+                            )
+            elif len(df_new['selected_rows']) > 1 and st.button(label="-----------下载附件-----------"):
+                st.warning('**请选择一条记录进行下载！！**')
+                
 # #从excel中导入记录    
 # # 定义函数，用于将Excel中的数据插入到数据库中
 #     file_type = file_path.split(".")[-1].lower()
