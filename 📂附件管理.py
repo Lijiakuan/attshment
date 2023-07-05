@@ -267,7 +267,7 @@ def get_image_download_link(img, filename):
 
   
 
-st.title("文件信息系统系统")
+st.title("文件信息系统")
 #侧边栏
 st.sidebar.header("文件信息系统")
 mode = st.sidebar.selectbox("附件管理", ["新增记录", "查看记录", "检索记录","图表统计展示"])
